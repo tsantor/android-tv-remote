@@ -5,6 +5,7 @@ import os
 import re
 import shlex
 import subprocess
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +28,11 @@ class ADB:
     ip = None
 
     def __init__(self):
-        self.adb_path = exec_cmd("which adb")
+        if sys.platform == 'win32':
+            self.adb_path = exec_cmd("where adb")
+        else:
+            self.adb_path = exec_cmd("which adb")
+
         if not self.adb_path:
             raise RuntimeError(
                 "You need Android Platform Tools installed and available on your PATH. https://developer.android.com/studio/releases/platform-tools#download"
@@ -37,7 +42,7 @@ class ADB:
         return self.serial or self.ip or "Unknown Device"
 
     def cmd(self, cmd):
-        """Run adb command."""
+        """Return adb command string."""
         parts = [self.adb_path]
         if self.serial:
             parts.append("-s %s" % self.serial)
@@ -52,7 +57,6 @@ class ADB:
         """Check if we have device with the IP."""
         cmd = self.cmd("devices")
         if ip in exec_cmd(cmd):
-            # if ip in str(subprocess.check_output(['adb', 'devices'])):
             logger.debug(f"Found device with IP {ip}")
             return True
         logger.debug("Found no devices")
@@ -62,11 +66,10 @@ class ADB:
         """Connect to the device via ADB connect."""
         cmd = self.cmd(f"connect {ip}")
         if "failed" in exec_cmd(cmd):
-            # if "unable" in str(subprocess.check_output(['adb', 'connect', ip])):
             err_count += 1
             if err_count >= 3:
-                logger.debug(f"Unable to connect to {ip} after {err_count} retries")
-                return False
+                logger.error(f"Unable to connect to {ip} after {err_count} retries")
+                raise RuntimeError(f"Unable to connect to {ip} after {err_count} retries")
             else:
                 return self.connect(ip, err_count)
         self.ip = ip
@@ -97,22 +100,15 @@ class ADB:
     def push(self, local, remote="/data/local/tmp/"):
         """Copy files and directories from the local device (computer) to
         a remote location on the device."""
-        cmd = self.cmd(
-            "push {local} {remote}".format(
-                local=os.path.expanduser(local), remote=remote
-            )
-        )
+        cmd = self.cmd(f"push {local} {remote}")
         return exec_cmd(cmd)
 
     def pull(self, remote, local, preserve_meta=False):
         """Copy remote files and directories to a device. Use the -a option
         to preserve the file time stamp and mode."""
-        # cmd = self.cmd('pull {remote} {local}'.format(
-        #     local=os.path.expanduser(local),
-        #     remote=remote
-        # ))
-        # return exec_cmd(cmd)
-        raise NotImplementedError
+        cmd = self.cmd(f"pull {remote} {local}")
+        return exec_cmd(cmd)
+        # raise NotImplementedError
 
     # App Installation Commands -----------------------------------------------
 
