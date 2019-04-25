@@ -1,0 +1,18 @@
+include AUTHORS.md
+include HISTORY.md
+include LICENSE.md
+include README.md
+
+recursive-include tests *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+
+recursive-include docs *.md mkdocs.yml
+
+# Examples:
+#include README.md
+#include LICENSE.md
+#recursive-include rest_framework/static *.js *.css *.png *.eot *.svg *.ttf *.woff
+#recursive-include rest_framework/templates *.html
+#recursive-exclude * __pycache__
+#recursive-exclude * *.py[co]
