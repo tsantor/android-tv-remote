@@ -1,25 +1,25 @@
-# python-android-tv-remote
+# Python Android TV Remote
 Author:Tim Santor <tsantor@xstudios.agency>
 
-# Overview
-Python Boilerplate contains all the boilerplate you need to create a Python package.
+## Overview
+Simple package that allows you to mimic Android TV remote inputs via Python.
 
 
-# Features
+## Features
 - TODO
 
 
-# Installation
+## Installation
 To install python-android-tv-remote, simply:
 
-    pip install androidtvremote
+    pip install android-tv-remote
 
 
-# Documentation
+## Documentation
 Documentation is available at TODO
 
 
-# Issues
+## Issues
 If you experience any issues, please create an [issue](https://bitbucket.org/tsantor/python-android-tv-remote/issues) on Bitbucket.
 
 

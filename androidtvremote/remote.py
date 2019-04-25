@@ -1,5 +1,11 @@
+# -*- coding: utf-8 -*-
+
+import logging
 import subprocess
+
 from .adb import ADB
+
+logger = logging.getLogger(__name__)
 
 
 class AndroidTVRemote:
@@ -33,54 +39,66 @@ class AndroidTVRemote:
     KEYCODE_TV_INPUT_HDMI_3 = 245  # Not working on Mi projector
     KEYCODE_TV_INPUT_HDMI_4 = 246  # Not working on Mi projector
 
-    def __init__(self, ip):
-        print(f"Create remote for {ip}")
-        self.device_ip = ip
+    def __init__(self, adb):
+        logger.debug(f"Create remote for {adb}")
         self.adb = ADB()
 
     # Navigation
     def press_home(self):
+        logger.debug("Press Home")
         self.adb.input_keyevent(self.KEYCODE_HOME)
 
     def press_back(self):
+        logger.debug("Press Back")
         self.adb.input_keyevent(self.KEYCODE_BACK)
 
     def press_dpad_up(self):
+        logger.debug("Press Dpad Up")
         self.adb.input_keyevent(self.KEYCODE_DPAD_UP)
 
     def press_dpad_down(self):
+        logger.debug("Press Dpad Down")
         self.adb.input_keyevent(self.KEYCODE_DPAD_DOWN)
 
     def press_dpad_left(self):
+        logger.debug("Press Dpad Left")
         self.adb.input_keyevent(self.KEYCODE_DPAD_LEFT)
 
     def press_dpad_right(self):
+        logger.debug("Press Dpad Right")
         self.adb.input_keyevent(self.KEYCODE_DPAD_RIGHT)
 
     def press_enter(self):
+        logger.debug("Press Enter")
         self.adb.input_keyevent(self.KEYCODE_ENTER)
 
     # Volume
     def press_volume_up(self):
+        logger.debug("Press Volume Up")
         self.adb.input_keyevent(self.KEYCODE_VOLUME_UP)
 
     def press_volume_down(self):
+        logger.debug("Press Volume Down")
         self.adb.input_keyevent(self.KEYCODE_VOLUME_DOWN)
 
     def press_volume_mute(self):
+        logger.debug("Press Volume Mute")
         self.adb.input_keyevent(self.KEYCODE_VOLUME_MUTE)
 
     # Sleep / Wake
     def press_power(self):
+        logger.debug("Press Power")
         self.adb.input_keyevent(self.KEYCODE_POWER)
 
     def press_sleep(self):
+        logger.debug("Press Sleep")
         self.adb.input_keyevent(self.KEYCODE_SLEEP)
 
     def press_wakeup(self):
+        logger.debug("Press Wakeup")
         self.adb.input_keyevent(self.KEYCODE_WAKEUP)
 
     # Input
     def press_tv_input(self):
-        print("Press TV input")
+        logger.debug("Press TV input")
         self.adb.input_keyevent(self.KEYCODE_TV_INPUT)
