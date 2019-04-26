@@ -11,14 +11,9 @@ logger = logging.getLogger(__name__)
 
 
 def exec_cmd(cmd):
-    """Execute the command."""
-    try:
-        # logger.debug(shlex.split(cmd))
-        output = subprocess.check_output(shlex.split(cmd))
-        return output.decode("utf-8").strip()
-    except Exception as e:
-        logger.exception(str(e))
-        # raise
+    """Execute the command and return clean output"""
+    output = subprocess.check_output(shlex.split(cmd))
+    return output.decode("utf-8").strip()
 
 
 class ADB:
@@ -53,6 +48,8 @@ class ADB:
         cmd = self.cmd("tcpip 5555")
         return exec_cmd(cmd)
 
+    # Connectivity -----------------------------------------------------------
+
     def check_connection(self, ip):
         """Check if we have device with the IP."""
         cmd = self.cmd("devices")
@@ -80,7 +77,9 @@ class ADB:
         """Determine if device is connected."""
         # By checking if we can get the serial, we can determine
         # if a device is connected.
-        return self.get_serialno()
+        if self.get_serialno():
+            return True
+        return False
 
     # General Commands -------------------------------------------------------
 
@@ -106,15 +105,24 @@ class ADB:
     def pull(self, remote, local, preserve_meta=False):
         """Copy remote files and directories to a device. Use the -a option
         to preserve the file time stamp and mode."""
-        cmd = self.cmd(f"pull {remote} {local}")
+        cmd = ["pull"]
+        if preserve_meta:
+            cmd.append("-k")
+        cmd.append(f"{remote} {local}")
+        cmd = " ".join(cmd)
+        cmd = self.cmd(cmd)
         return exec_cmd(cmd)
-        # raise NotImplementedError
 
     # App Installation Commands -----------------------------------------------
 
-    def install(self, apk_file):
+    def install(self, apk_file, replace=True):
         """Install app."""
-        cmd = self.cmd(f"install -r {apk_file}")
+        cmd = ["install"]
+        if replace:
+            cmd.append("-r")
+        cmd.append(apk_file)
+        cmd = " ".join(cmd)
+        cmd = self.cmd(cmd)
         return exec_cmd(cmd)
 
     def uninstall(self, package, keep_data=False):
@@ -140,9 +148,10 @@ class ADB:
         """"Print the adb device serial number string."""
         if self.serial:
             return self.serial
-
         cmd = self.cmd("get-serialno")
-        return exec_cmd(cmd)
+        serial = exec_cmd(cmd)
+        self.serial = serial
+        return serial
 
     def get_devpath(self):
         """Print the adb device path."""
@@ -154,9 +163,13 @@ class ADB:
         read-write mode."""
         raise NotImplementedError
 
-    def reboot(self, mode=""):
+    def reboot(self, mode=None):
         """Reboot the device [bootloader | recovery | sideload | sideload-auto-reboot]."""
-        cmd = self.cmd(f"reboot {mode}")
+        cmd = ["reboot"]
+        if mode:
+            cmd.append(mode)
+        cmd = " ".join(cmd)
+        cmd = self.cmd(cmd)
         return exec_cmd(cmd)
 
     # Misc --------------------------------------------------------------------
@@ -220,3 +233,4 @@ class ADB:
     def reset(self):
         """Reset."""
         self.serial = None
+        self.ip = None
