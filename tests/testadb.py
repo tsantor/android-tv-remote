@@ -9,7 +9,6 @@ from androidtvremote import adb
 
 
 class TestADB(unittest.TestCase):
-
     def setUp(self):
         self.adb = adb.ADB()
 
@@ -18,12 +17,12 @@ class TestADB(unittest.TestCase):
 
     def test_get_state(self):
         result = self.adb.get_state()
-        matches = re.match(r'[\w\s]+', result)
+        matches = re.match(r"[\w\s]+", result)
         self.assertEqual(result, matches.group(0))
 
     def test_get_serialno(self):
         result = self.adb.get_serialno()
-        matches = re.match(r'[\w\.\:]+', result)
+        matches = re.match(r"[\w\.\:]+", result)
         self.assertEqual(result, matches.group(0))
 
     # def test_stop_service(self):
@@ -33,5 +32,5 @@ class TestADB(unittest.TestCase):
         pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

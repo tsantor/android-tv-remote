@@ -102,3 +102,19 @@ class AndroidTVRemote:
     def press_tv_input(self):
         logger.debug("Press TV input")
         self.adb.input_keyevent(self.KEYCODE_TV_INPUT)
+
+    def press_tv_input_hdmi1(self):
+        logger.debug("Press TV input HDMI 1")
+        self.adb.input_keyevent(self.KEYCODE_TV_INPUT_HDMI_1)
+
+    def press_tv_input_hdmi2(self):
+        logger.debug("Press TV input HDMI 1")
+        self.adb.input_keyevent(self.KEYCODE_TV_INPUT_HDMI_2)
+
+    def press_tv_input_hdmi3(self):
+        logger.debug("Press TV input HDMI 1")
+        self.adb.input_keyevent(self.KEYCODE_TV_INPUT_HDMI_3)
+
+    def press_tv_input_hdmi4(self):
+        logger.debug("Press TV input HDMI 1")
+        self.adb.input_keyevent(self.KEYCODE_TV_INPUT_HDMI_4)

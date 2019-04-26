@@ -23,7 +23,7 @@ class ADB:
     ip = None
 
     def __init__(self):
-        if sys.platform == 'win32':
+        if sys.platform == "win32":
             self.adb_path = exec_cmd("where adb")
         else:
             self.adb_path = exec_cmd("which adb")
@@ -66,7 +66,9 @@ class ADB:
             err_count += 1
             if err_count >= 3:
                 logger.error(f"Unable to connect to {ip} after {err_count} retries")
-                raise RuntimeError(f"Unable to connect to {ip} after {err_count} retries")
+                raise RuntimeError(
+                    f"Unable to connect to {ip} after {err_count} retries"
+                )
             else:
                 return self.connect(ip, err_count)
         self.ip = ip
