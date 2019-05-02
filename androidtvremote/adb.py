@@ -31,6 +31,8 @@ class ADB:
         else:
             self.adb_path = exec_cmd("which adb")
 
+        logging.debug(self.adb_path)
+
         if not self.adb_path:
             raise RuntimeError(
                 "You need Android Platform Tools installed and available on your PATH. https://developer.android.com/studio/releases/platform-tools#download"
