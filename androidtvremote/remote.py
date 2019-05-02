@@ -3,8 +3,6 @@
 import logging
 import subprocess
 
-from .adb import ADB
-
 logger = logging.getLogger(__name__)
 
 
@@ -41,7 +39,7 @@ class AndroidTVRemote:
 
     def __init__(self, adb):
         logger.debug(f"Create remote for {adb}")
-        self.adb = ADB()
+        self.adb = adb
 
     # Navigation
     def press_home(self):

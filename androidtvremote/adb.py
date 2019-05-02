@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 def exec_cmd(cmd):
     """Execute the command and return clean output"""
+    # logger.debug(cmd)
     cmd = shlex.split(cmd, posix="win" not in sys.platform)
     output = subprocess.check_output(cmd)
     return output.decode("utf-8").strip()
@@ -46,7 +47,7 @@ class ADB:
         """Return adb command string."""
         parts = [self.adb_path]
         if self.serial:
-            parts.append("-s %s" % self.serial)
+            parts.append(f"-s {self.serial}")
         parts.append(cmd)
         return " ".join(parts)
 
@@ -54,20 +55,31 @@ class ADB:
         cmd = self.cmd("tcpip 5555")
         return exec_cmd(cmd)
 
+    # General Commands -------------------------------------------------------
+
+    def devices(self, descriptions=True):
+        """Print a list of all devices. Use the -l option to
+        include the device descriptions."""
+        cmd = [f"{self.adb_path} devices"]
+        if descriptions:
+            cmd.append("-l")
+        cmd = " ".join(cmd)
+        return exec_cmd(cmd)
+
     # Connectivity -----------------------------------------------------------
 
     def check_connection(self, ip):
         """Check if we have device with the IP."""
-        cmd = self.cmd("devices")
+        cmd = f"{self.adb_path} devices"
         if ip in exec_cmd(cmd):
-            logger.debug(f"Found device with IP {ip}")
+            logger.info(f"Found device with IP {ip}")
             return True
-        logger.debug("Found no devices")
+        logger.warning("Found no devices")
         return False
 
     def connect(self, ip, err_count=0):
         """Connect to the device via ADB connect."""
-        cmd = self.cmd(f"connect {ip}")
+        cmd = f"{self.adb_path} connect {ip}"
         if "failed" in exec_cmd(cmd):
             err_count += 1
             if err_count >= 3:
@@ -78,29 +90,12 @@ class ADB:
             else:
                 return self.connect(ip, err_count)
         self.ip = ip
-        logger.debug(f"Connected to {ip}")
+        logger.info(f"Connected to {ip}")
         return True
 
     def is_connected(self):
         """Determine if device is connected."""
-        # By checking if we can get the serial, we can determine
-        # if a device is connected.
-        if self.get_serialno():
-            return True
-        return False
-
-    # General Commands -------------------------------------------------------
-
-    def devices(self, descriptions=True):
-        """Print a list of all devices. Use the -l option to
-        include the device descriptions."""
-        cmd = ["devices"]
-        if descriptions:
-            cmd.append("-l")
-        cmd = " ".join(cmd)
-
-        cmd = self.cmd(cmd)
-        return exec_cmd(cmd)
+        raise NotImplementedError
 
     # File Transfer Commands --------------------------------------------------
 
@@ -240,5 +235,6 @@ class ADB:
 
     def reset(self):
         """Reset."""
+        logger.debug("RESET")
         self.serial = None
         self.ip = None

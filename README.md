@@ -14,6 +14,12 @@ To install python-android-tv-remote, simply:
 
     pip install android-tv-remote
 
+## Tips
+Get IP address:
+```
+adb -s <DEVICE_ID> shell ip -f inet addr show wlan0
+```
+
 
 ## Documentation
 Documentation is available at TODO
