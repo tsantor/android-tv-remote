@@ -17,7 +17,10 @@ def exec_cmd(cmd):
 
 
 class ADB:
-    """Limited set of ADB commands."""
+    """
+    Limited set of ADB commands.
+    https://developer.android.com/studio/command-line/adb
+    """
 
     serial = None
     ip = None
@@ -220,9 +223,9 @@ class ADB:
         cmd = self.cmd(f"shell input keyevent {keycode}")
         return exec_cmd(cmd)
 
-    def get_ip_address(self):
+    def get_ip_address(self, interface="wlan0"):
         """Extract IP address from ifconfig."""
-        cmd = self.cmd("shell ifconfig wlan0")
+        cmd = self.cmd(f"shell ifconfig {interface}")
         result = exec_cmd(cmd)
         if result:
             match_obj = re.search(r"inet addr:(.+)  Bcast", result, re.M | re.I)
