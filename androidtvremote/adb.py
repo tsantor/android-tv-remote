@@ -12,7 +12,8 @@ logger = logging.getLogger(__name__)
 
 def exec_cmd(cmd):
     """Execute the command and return clean output"""
-    output = subprocess.check_output(shlex.split(cmd))
+    cmd = shlex.split(cmd, posix="win" not in sys.platform)
+    output = subprocess.check_output(cmd)
     return output.decode("utf-8").strip()
 
 
