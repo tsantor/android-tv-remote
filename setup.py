@@ -1,73 +1,73 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
 
-import codecs
+"""The setup script."""
+
 import os
 import re
 import sys
 
 from setuptools import find_packages, setup
 
-name = "android-tv-remote"
-package = "androidtvremote"
-description = ""
-url = "https://bitbucket.org/tsantor/python-android-tv-remote"
-author = "Tim Santor"
-author_email = "tsantor@xstudios.agency"
-license = "MIT"
-install_requires = []
-classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Environment :: Console",
-    "Intended Audience :: Developers",
-    "Topic :: Software Development :: Build Tools",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3.6",
-]
-entry_points = {
-    "console_scripts": [
-        # 'android-remote = androidtvremote.androidtvremote:main',
-    ]
-}
+
+def get_version(*file_paths):
+    """Retrieves the version from androidtvremote/__init__.py"""
+    filename = os.path.join(os.path.dirname(__file__), *file_paths)
+    version_file = open(filename).read()
+    version_match = re.search(
+        r"^__version__ = ['\"]([^'\"]*)['\"]", version_file, re.M
+    )  # noqa
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
 
 
-def get_version(package):
-    """
-    Return package version as listed in `__version__` in `init.py`.
-    """
-    init_py = codecs.open(os.path.join(package, "__init__.py"), encoding="utf-8").read()
-    return re.search("^__version__ = ['\"]([^'\"]+)['\"]", init_py, re.MULTILINE).group(
-        1
-    )
+version = get_version("androidtvremote", "__init__.py")
 
-
-if sys.argv[-1] == "build":
-    os.system("python setup.py sdist bdist_wheel")
-
-if sys.argv[-1] == "publish":
-    os.system("python setup.py sdist upload")
-    args = {"version": get_version(package)}
-    print("You probably want to also tag the version now:")
-    print(
-        "    git tag -a %(version)s -m 'version %(version)s' && git push --tags" % args
-    )
-    sys.exit()
-
-EXCLUDE_FROM_PACKAGES = []
+readme = open("README.md").read()
+history = open("HISTORY.md").read()
+requirements = open("requirements.txt").readlines()
+# if sys.platform == "win32":
+#     requirements += open("requirements_windows.txt").readlines()
+test_requirements = open("requirements_test.txt").readlines()
 
 setup(
-    name=name,
-    version=get_version(package),
-    description=description,
-    long_description=description,
-    url=url,
-    author=author,
-    author_email=author_email,
-    license=license,
-    packages=find_packages(exclude=EXCLUDE_FROM_PACKAGES),
-    install_requires=install_requires,
-    classifiers=classifiers,
-    entry_points=entry_points,
+    author="Tim Santor",
+    author_email="tsantor@xstudios.com",
+    python_requires=">=3.6",
+    classifiers=[
+        "Development Status :: 5 - Production/Stable",
+        "Intended Audience :: Developers",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+    ],
+    description="Android TV remote for Python.",
+    entry_points={
+        # "console_scripts": [
+        #     "air-methods=androidtvremote.cli:run",
+        #     "air-methods-udp=androidtvremote.cli:run_udp",
+        # ],
+    },
+    install_requires=requirements,
+    long_description=readme + "\n\n" + history,
+    long_description_content_type="text/markdown",
+    # data_files=[
+    #     (
+    #         "androidtvremote",
+    #         [
+    #             "androidtvremote/data/filename.ext",
+    #         ],
+    #     )
+    # ],
+    include_package_data=True,
+    keywords="remote android python",
+    name="android-tv-remote",
+    packages=find_packages(include=["androidtvremote", "androidtvremote.*"]),
+    test_suite="tests",
+    tests_require=test_requirements,
+    url="https://bitbucket.org/xstudios/air-methods-middleman",
+    version=version,
     zip_safe=False,
 )

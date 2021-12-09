@@ -1,10 +1,18 @@
 include AUTHORS.md
 include HISTORY.md
-include LICENSE.md
+include LICENSE
 include README.md
+
+include requirements.txt
+include requirements_*.txt
 
 recursive-include tests *
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 
-recursive-include docs *.md mkdocs.yml
+recursive-include docs *.rst conf.py Makefile make.bat *.jpg *.png *.gif
+recursive-include androidtvremote/data/*
+
+#graft androidtvremote # will copy the entire package including non-python files.
+#global-exclude * __pycache__
+#global-exclude * *.py[co]

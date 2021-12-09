@@ -29,13 +29,14 @@ class AndroidTVRemote:
 
     KEYCODE_TV_INPUT = 178
 
+    KEYCODE_SOFT_SLEEP = 276
     KEYCODE_SLEEP = 223
     KEYCODE_WAKEUP = 224
 
-    KEYCODE_TV_INPUT_HDMI_1 = 243  # Not working on Mi projector
-    KEYCODE_TV_INPUT_HDMI_2 = 244  # Not working on Mi projector
-    KEYCODE_TV_INPUT_HDMI_3 = 245  # Not working on Mi projector
-    KEYCODE_TV_INPUT_HDMI_4 = 246  # Not working on Mi projector
+    KEYCODE_TV_INPUT_HDMI_1 = 243
+    KEYCODE_TV_INPUT_HDMI_2 = 244
+    KEYCODE_TV_INPUT_HDMI_3 = 245
+    KEYCODE_TV_INPUT_HDMI_4 = 246
 
     def __init__(self, adb):
         logger.debug(f"Create remote for {adb}")
@@ -87,6 +88,10 @@ class AndroidTVRemote:
     def press_power(self):
         logger.debug("Press Power")
         self.adb.input_keyevent(self.KEYCODE_POWER)
+
+    def press_soft_sleep(self):
+        logger.debug("Press Soft Sleep")
+        self.adb.input_keyevent(self.KEYCODE_SOFT_SLEEP)
 
     def press_sleep(self):
         logger.debug("Press Sleep")

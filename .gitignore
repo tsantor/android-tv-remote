@@ -21,3 +21,5 @@
 /*.log
 /*.txt
 /*.json
+
+.python-version
