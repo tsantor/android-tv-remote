@@ -51,8 +51,8 @@ clean-pyc: ## remove Python file artifacts
 	find . -name '*~' -exec rm -f {} +
 	find . -name '__pycache__' -exec rm -fr {} +
 
-# release: dist ## package and upload a release
-# 	twine upload dist/*
+release: dist ## package and upload a release
+	twine upload dist/*
 
 dist: clean ## builds source and wheel package
 	# python -m build

@@ -97,6 +97,12 @@ class ADB:
         """Determine if device is connected."""
         raise NotImplementedError
 
+    def disconnect(self):
+        """Disconnect device."""
+        cmd = self.cmd(f"disconnect")
+        return exec_cmd(cmd)
+
+
     # File Transfer Commands --------------------------------------------------
 
     def push(self, local, remote="/data/local/tmp/"):
