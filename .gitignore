@@ -13,13 +13,4 @@
 .vscode/
 .project
 
-# Package specific
-/cache/*
-/datasets/*
-/processed/*
-/images/*
-/*.log
-/*.txt
-/*.json
-
 .python-version
