@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import os
 import re
 import shlex
 import subprocess
 import sys
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +23,8 @@ class ADB:
     Limited set of ADB commands.
     https://developer.android.com/studio/command-line/adb
     """
+
+    retry_attempts = 0
 
     serial = None
     ip = None
@@ -77,18 +79,20 @@ class ADB:
         logger.warning("Found no devices")
         return False
 
-    def connect(self, ip, err_count=0):
+    def connect(self, ip, max_retries=0, reconnect_delay=5):
         """Connect to the device via ADB connect."""
         cmd = f"{self.adb_path} connect {ip}"
+        logger.debug(f'Connect to ADB device {ip} ...')
         if "failed" in exec_cmd(cmd):
-            err_count += 1
-            if err_count >= 3:
-                logger.error(f"Unable to connect to {ip} after {err_count} retries")
+            self.retry_attempts += 1
+            if max_retries and self.retry_attempts >= max_retries:
+                logger.error(f"Unable to connect to {ip} after {self.retry_attempts} retries")
                 raise RuntimeError(
-                    f"Unable to connect to {ip} after {err_count} retries"
+                    f"Unable to connect to {ip} after {self.retry_attempts} retries"
                 )
             else:
-                return self.connect(ip, err_count)
+                time.sleep(reconnect_delay)
+                return self.connect(ip)
         self.ip = ip
         logger.info(f"Connected to {ip}")
         return True
@@ -99,7 +103,7 @@ class ADB:
 
     def disconnect(self):
         """Disconnect device."""
-        cmd = self.cmd(f"disconnect")
+        cmd = self.cmd("disconnect")
         return exec_cmd(cmd)
 
 
