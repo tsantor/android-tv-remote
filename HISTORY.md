@@ -13,3 +13,6 @@ All notable changes to this project will be documented in this file. This projec
 
 ## 0.1.3 (2021-12-10)
 * Added ADB `connect` params for `max_retries` and `retry_delay`.
+
+## 0.1.4 (2021-12-12)
+* Removed ADB `connect` params for `max_retries` and `retry_delay`.

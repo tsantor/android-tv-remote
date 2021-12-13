@@ -27,7 +27,6 @@ class ADB:
     retry_attempts = 0
 
     serial = None
-    ip = None
 
     def __init__(self):
         if sys.platform == "win32":
@@ -35,15 +34,13 @@ class ADB:
         else:
             self.adb_path = exec_cmd("which adb")
 
-        logging.debug(self.adb_path)
-
         if not self.adb_path:
             raise RuntimeError(
                 "You need Android Platform Tools installed and available on your PATH. https://developer.android.com/studio/releases/platform-tools#download"
             )
 
     def __str__(self):
-        return self.serial or self.ip or "Unknown Device"
+        return self.serial or "Unknown Device"
 
     def cmd(self, cmd):
         """Return adb command string."""
@@ -74,38 +71,30 @@ class ADB:
         """Check if we have device with the IP."""
         cmd = f"{self.adb_path} devices"
         if ip in exec_cmd(cmd):
-            logger.info(f"Found device with IP {ip}")
+            logger.info("Found a device at %s", ip)
             return True
-        logger.warning("Found no devices")
+        logger.warning("Found no device at %s", ip)
         return False
 
-    def connect(self, ip, max_retries=0, reconnect_delay=5):
+    def connect(self, ip):
         """Connect to the device via ADB connect."""
         cmd = f"{self.adb_path} connect {ip}"
         logger.debug(f'Connect to ADB device {ip} ...')
         if "failed" in exec_cmd(cmd):
-            self.retry_attempts += 1
-            if max_retries and self.retry_attempts >= max_retries:
-                logger.error(f"Unable to connect to {ip} after {self.retry_attempts} retries")
-                raise RuntimeError(
-                    f"Unable to connect to {ip} after {self.retry_attempts} retries"
-                )
-            else:
-                time.sleep(reconnect_delay)
-                return self.connect(ip)
-        self.ip = ip
-        logger.info(f"Connected to {ip}")
-        return True
+            raise RuntimeError(
+                f"Unable to connect to {ip}"
+            )
+        self.serial = self.get_serialno()
 
     def is_connected(self):
         """Determine if device is connected."""
-        raise NotImplementedError
+        cmd = f"{self.adb_path} connect {self.ip}"
+        return "connected" in exec_cmd(cmd)
 
     def disconnect(self):
         """Disconnect device."""
         cmd = self.cmd("disconnect")
         return exec_cmd(cmd)
-
 
     # File Transfer Commands --------------------------------------------------
 
