@@ -17,6 +17,15 @@ def exec_cmd(cmd):
     output = subprocess.check_output(cmd)
     return output.decode("utf-8").strip()
 
+    # proc = subprocess.run(
+    #     shlex.split(cmd, posix="win" not in sys.platform),
+    #     check=True,
+    #     capture_output=True,
+    #     text=True,
+    #     # shell=True,  # This is to be used with care!
+    # )
+    # return proc.stdout.strip()
+
 
 class ADB:
     """
@@ -24,9 +33,8 @@ class ADB:
     https://developer.android.com/studio/command-line/adb
     """
 
-    retry_attempts = 0
-
     serial = None
+    adb_process = None
 
     def __init__(self):
         if sys.platform == "win32":
@@ -38,6 +46,9 @@ class ADB:
             raise RuntimeError(
                 "You need Android Platform Tools installed and available on your PATH. https://developer.android.com/studio/releases/platform-tools#download"
             )
+
+        # https://stackoverflow.com/questions/44702657/starting-adb-daemon-python/44702825
+        self.adb_process = self.start_server()
 
     def __str__(self):
         return self.serial or "Unknown Device"
@@ -172,6 +183,17 @@ class ADB:
         cmd = self.cmd(cmd)
         return exec_cmd(cmd)
 
+    def start_server(self):
+        cmd = [self.adb_path, "start-server"]
+        adb = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+        # Give the ADB process time to start up. Don't like this, but it works.
+        time.sleep(5)
+        return adb
+
+    def kill_server(self):
+        cmd = self.cmd("kill-server")
+        return exec_cmd(cmd)
+
     # Misc --------------------------------------------------------------------
 
     def set_home_activity(self, package, activity):
@@ -232,6 +254,9 @@ class ADB:
 
     def reset(self):
         """Reset."""
-        logger.debug("RESET")
         self.serial = None
         self.ip = None
+
+    def destroy(self):
+        if self.adb_process:
+            self.adb_process.terminate()
