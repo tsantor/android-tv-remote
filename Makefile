@@ -63,9 +63,9 @@ dist: clean ## builds source and wheel package
 install_edtiable: clean ## install the package to the active Python's site-packages
 	pip install -e .
 
-push_to_s3:  # push distro to S3 bucket
-	aws s3 sync --profile=${aws_profile} --acl public-read ./dist/ s3://${s3_bucket}/dist/ \
-        --exclude "*" --include "*.whl"
+# push_to_s3:  # push distro to S3 bucket
+# 	aws s3 sync --profile=${aws_profile} --acl public-read ./dist/ s3://${s3_bucket}/dist/ \
+#         --exclude "*" --include "*.whl"
 
 # pull_from_s3:  # pull distros from S3 bucket
 # 	aws s3 sync --profile=${aws_profile} s3://${s3_bucket}/dist/ . \

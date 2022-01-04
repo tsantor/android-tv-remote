@@ -12,7 +12,6 @@ class AndroidTVRemote:
     # https://developer.android.com/reference/android/view/KeyEvent
 
     def __init__(self, adb):
-        logger.debug(f"Create remote for {adb}")
         self.adb = adb
 
     # Navigation

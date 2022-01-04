@@ -71,7 +71,7 @@ class ADB:
         """Check if we have device with the IP."""
         cmd = f"{self.adb_path} devices"
         if ip in exec_cmd(cmd):
-            logger.info("Found a device at %s", ip)
+            logger.info("Found device with IP %s", ip)
             return True
         logger.warning("Found no device at %s", ip)
         return False
@@ -79,11 +79,9 @@ class ADB:
     def connect(self, ip):
         """Connect to the device via ADB connect."""
         cmd = f"{self.adb_path} connect {ip}"
-        logger.debug(f'Connect to ADB device {ip} ...')
+        logger.debug("Connect to ADB device %s ...", ip)
         if "failed" in exec_cmd(cmd):
-            raise RuntimeError(
-                f"Unable to connect to {ip}"
-            )
+            raise RuntimeError(f"Unable to connect to {ip}")
         self.serial = self.get_serialno()
 
     def is_connected(self):
@@ -147,7 +145,7 @@ class ADB:
         return exec_cmd(cmd)
 
     def get_serialno(self):
-        """"Print the adb device serial number string."""
+        """ "Print the adb device serial number string."""
         if self.serial:
             return self.serial
         cmd = self.cmd("get-serialno")
