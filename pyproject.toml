@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "android-tv-remote"
-description = "Android TV Remote."
+description = "Provides a limited set of ADB commands. Primarly acts as a remote to control Android TV interfaces."
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",

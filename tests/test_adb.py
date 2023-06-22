@@ -5,12 +5,12 @@ import pytest
 from androidtvremote import ADB
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def serial() -> str:
     return "192.168.1.112"  # Update with your device
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def adb(serial) -> ADB:
     adb = ADB()
     # adb.tcp()  # Enable TCP mode to connect over IP
@@ -68,3 +68,15 @@ def test_list_3rd_party_packages(adb):
 
 def test_list_services(adb):
     assert isinstance(adb.list_services(), list)
+
+
+def test_disconnect(adb):
+    adb.disconnect()
+
+
+def test_kill_server(adb):
+    adb.kill_server()
+
+
+def test_start_server(adb):
+    adb.start_server()

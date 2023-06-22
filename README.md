@@ -41,12 +41,16 @@ adb -s <DEVICE_ID> shell ip -f inet addr show wlan0
     pip install -e .
 
 ## Testing
+Project is at **76%** test coverage.
 
     pytest -v
     tox
 
     # Run a specific test
     pytest -v tests/test_adb.py -k test_get_ip_address
+
+    # Run coverage
+    pytest --cov-report html --cov-report term --cov=tests/
 
 
 ## Documentation

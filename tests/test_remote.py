@@ -4,19 +4,19 @@ from androidtvremote.adb import ADB
 from androidtvremote.remote import AndroidTVRemote
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def serial() -> str:
     return "192.168.1.112"  # Update with your device
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def adb(serial) -> ADB:
     adb = ADB()
     adb.connect(serial)
     return adb
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def remote(adb) -> AndroidTVRemote:
     return AndroidTVRemote(adb)
 
