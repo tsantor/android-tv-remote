@@ -70,18 +70,20 @@ class ADB:
 
     # General Commands -------------------------------------------------------
 
-    def devices(self, descriptions=True):
+    def devices(self, descriptions=True) -> list:
         """Print a list of all devices. Use the -l option to
         include the device descriptions."""
         cmd = [f"{self.adb_path} devices"]
         if descriptions:
             cmd.append("-l")
         cmd = " ".join(cmd)
-        return exec_cmd(cmd)
+        result = exec_cmd(cmd)
+        lines = result.split("\n")
+        return lines[1:]
 
     # Connectivity -----------------------------------------------------------
 
-    def check_connection(self, ip):
+    def check_connection(self, ip) -> bool:
         """Check if we have device with the IP."""
         cmd = f"{self.adb_path} devices"
         if ip in exec_cmd(cmd):
@@ -152,13 +154,13 @@ class ADB:
 
     # Scripting Commands ------------------------------------------------------
 
-    def get_state(self):
+    def get_state(self) -> str:
         """Print the adb state of a device. The state can be offline,
         device or no device."""
         cmd = self.cmd("get-state")
         return exec_cmd(cmd)
 
-    def get_serialno(self):
+    def get_serialno(self) -> str:
         """Print the adb device serial number string."""
         if self.serial:
             return self.serial
@@ -167,7 +169,7 @@ class ADB:
         self.serial = serial
         return serial
 
-    def get_devpath(self):
+    def get_devpath(self) -> str:
         """Print the adb device path."""
         cmd = self.cmd("get-devpath")
         return exec_cmd(cmd)

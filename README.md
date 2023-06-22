@@ -22,8 +22,6 @@ Offers a limited set of ADB commands. See `src\androidtvremote\adb.py` for all c
     - `start-server`
     - `kill-server`
 
-
-
 ## Installation
 To install python-android-tv-remote, simply:
 
@@ -35,6 +33,20 @@ Get IP address:
 adb devices
 adb -s <DEVICE_ID> shell ip -f inet addr show wlan0
 ```
+
+## Development
+
+    make env
+    make reqs
+    pip install -e .
+
+## Testing
+
+    pytest -v
+    tox
+
+    # Run a specific test
+    pytest -v tests/test_adb.py -k test_get_ip_address
 
 
 ## Documentation
