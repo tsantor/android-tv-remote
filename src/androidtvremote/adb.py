@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import logging
 import re
 import shlex
@@ -7,24 +5,25 @@ import subprocess
 import sys
 import time
 
+from .utils import extract_services
+
 logger = logging.getLogger(__name__)
 
 
 def exec_cmd(cmd):
     """Execute the command and return clean output"""
     # logger.debug(cmd)
-    cmd = shlex.split(cmd, posix="win" not in sys.platform)
-    output = subprocess.check_output(cmd)
-    return output.decode("utf-8").strip()
+    # cmd = shlex.split(cmd, posix="win" not in sys.platform)
+    # output = subprocess.check_output(cmd)
+    # return output.decode("utf-8").strip()
 
-    # proc = subprocess.run(
-    #     shlex.split(cmd, posix="win" not in sys.platform),
-    #     check=True,
-    #     capture_output=True,
-    #     text=True,
-    #     # shell=True,  # This is to be used with care!
-    # )
-    # return proc.stdout.strip()
+    proc = subprocess.run(
+        shlex.split(cmd, posix="win" not in sys.platform),
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return proc.stdout.strip()
 
 
 class ADB:
@@ -44,7 +43,11 @@ class ADB:
 
         if not self.adb_path:
             raise RuntimeError(
-                "You need Android Platform Tools installed and available on your PATH. https://developer.android.com/studio/releases/platform-tools#download"
+                """
+                You need Android Platform Tools installed and available on your PATH.
+                https://developer.android.com/studio/releases/platform-tools#download
+                Ensure you run `adb tcpip 5555` to enable TCP mode.
+                """
             )
 
         # https://stackoverflow.com/questions/44702657/starting-adb-daemon-python/44702825
@@ -95,9 +98,9 @@ class ADB:
             raise RuntimeError(f"Unable to connect to {ip}")
         self.serial = self.get_serialno()
 
-    def is_connected(self):
+    def is_connected(self) -> bool:
         """Determine if device is connected."""
-        cmd = f"{self.adb_path} connect {self.ip}"
+        cmd = f"{self.adb_path} connect {self.serial}"
         return "connected" in exec_cmd(cmd)
 
     def disconnect(self):
@@ -220,15 +223,22 @@ class ADB:
         cmd = self.cmd(f"shell am force-stop {package}")
         return exec_cmd(cmd)
 
-    def list_3rd_party_packages(self):
+    def list_3rd_party_packages(self) -> list:
         """List 3rd party packages."""
         cmd = self.cmd("shell cmd package list packages -3")
-        return exec_cmd(cmd)
+        results = exec_cmd(cmd).split("\n")
+        return [x.replace("package:", "") for x in results]
 
     def kill_all(self):
         """Kill all background processes."""
         cmd = self.cmd("shell am kill-all")
         return exec_cmd(cmd)
+
+    def list_services(self) -> list:
+        """List services."""
+        cmd = self.cmd("shell service list")
+        results = exec_cmd(cmd)
+        return extract_services(results)
 
     def stop_service(self, service):
         """Stop a service."""
@@ -244,9 +254,7 @@ class ADB:
         """Extract IP address from ifconfig."""
         cmd = self.cmd(f"shell ifconfig {interface}")
         if result := exec_cmd(cmd):
-            if match_obj := re.search(
-                r"inet addr:(.+)  Bcast", result, re.M | re.I
-            ):
+            if match_obj := re.search(r"inet addr:(.+)  Bcast", result, re.M | re.I):
                 return match_obj[1]
         return "N/A"
 
@@ -255,8 +263,8 @@ class ADB:
     def reset(self):
         """Reset."""
         self.serial = None
-        self.ip = None
 
     def destroy(self):
         if self.adb_process:
             self.adb_process.terminate()
+        self.reset()
