@@ -51,7 +51,7 @@ class ADB:
             )
 
         # https://stackoverflow.com/questions/44702657/starting-adb-daemon-python/44702825
-        self.adb_process = self.start_server()
+        self.start_server()
 
     def __str__(self):
         return self.serial or "Unknown Device"
@@ -64,8 +64,26 @@ class ADB:
         parts.append(cmd)
         return " ".join(parts)
 
-    def tcp(self):
-        cmd = self.cmd("tcpip 5555")
+    # Server ------------------------------------------------------------------
+
+    def start_server(self):
+        cmd = [self.adb_path, "start-server"]
+        adb = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+        # Give the ADB process time to start up. Don't like this, but it works.
+        time.sleep(5)
+        self.adb_process = adb
+
+    def kill_server(self):
+        cmd = self.cmd("kill-server")
+        return exec_cmd(cmd)
+
+    def destroy(self):
+        if self.adb_process:
+            self.adb_process.terminate()
+        self.reset()
+
+    def tcp(self, port="5555"):
+        cmd = self.cmd(f"tcpip {port}")
         return exec_cmd(cmd)
 
     # General Commands -------------------------------------------------------
@@ -188,23 +206,7 @@ class ADB:
         cmd = self.cmd(cmd)
         return exec_cmd(cmd)
 
-    def start_server(self):
-        cmd = [self.adb_path, "start-server"]
-        adb = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-        # Give the ADB process time to start up. Don't like this, but it works.
-        time.sleep(5)
-        return adb
-
-    def kill_server(self):
-        cmd = self.cmd("kill-server")
-        return exec_cmd(cmd)
-
-    # Misc --------------------------------------------------------------------
-
-    def set_home_activity(self, package, activity):
-        """Set home activity."""
-        cmd = self.cmd(f"shell cmd package set-home-activity {package}/{activity}")
-        return exec_cmd(cmd)
+    # Apps --------------------------------------------------------------------
 
     def start_app(self, package, activity, wait=True, stop=True):
         """Start app."""
@@ -236,6 +238,8 @@ class ADB:
         cmd = self.cmd("shell am kill-all")
         return exec_cmd(cmd)
 
+    # Services ----------------------------------------------------------------
+
     def list_services(self) -> list:
         """List services."""
         cmd = self.cmd("shell service list")
@@ -245,6 +249,13 @@ class ADB:
     def stop_service(self, service):
         """Stop a service."""
         cmd = self.cmd(f"shell am stopservice {service}")
+        return exec_cmd(cmd)
+
+    # Misc --------------------------------------------------------------------
+
+    def set_home_activity(self, package, activity):
+        """Set home activity."""
+        cmd = self.cmd(f"shell cmd package set-home-activity {package}/{activity}")
         return exec_cmd(cmd)
 
     def input_keyevent(self, keycode):
@@ -260,13 +271,6 @@ class ADB:
                 return match_obj[1]
         return "N/A"
 
-    # Other -------------------------------------------------------------------
-
     def reset(self):
         """Reset."""
         self.serial = None
-
-    def destroy(self):
-        if self.adb_process:
-            self.adb_process.terminate()
-        self.reset()
