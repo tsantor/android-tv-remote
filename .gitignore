@@ -1,16 +1,19 @@
-*.py[cod]
+# System
+*.DS_Store
 
-# C extensions
-*.so
+# Python
+*.pyc
 
-# Packages
-/*.egg-info
-/dist
-/build
-/sdist
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
 
-# Mr Developer
+# Editor
 .vscode/
-.project
 
+# Testing leftovers
+coverage_html_report/
+.tox/
+.coverage
 .python-version

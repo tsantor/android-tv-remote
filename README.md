@@ -1,5 +1,5 @@
 # Python Android TV Remote
-Author:Tim Santor <tsantor@xstudios.agency>
+Author:Tim Santor <tsantor@xstudios.com>
 
 ## Overview
 Simple package that allows you to mimic Android TV remote inputs via Python.
@@ -27,10 +27,3 @@ Documentation is available at TODO
 
 ## Issues
 If you experience any issues, please create an [issue](https://bitbucket.org/tsantor/python-android-tv-remote/issues) on Bitbucket.
-
-
-## Resources
-- https://beeware.org/
-- https://hackernoon.com/making-a-tv-remote-in-python-ef1dd5409524
-- https://github.com/eslavnov/android-tv-remote
-- https://github.com/simse/pymitv
