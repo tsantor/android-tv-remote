@@ -6,7 +6,7 @@ from androidtvremote.remote import AndroidTVRemote
 
 @pytest.fixture(scope="session")
 def serial() -> str:
-    return "192.168.1.112"  # Update with your device
+    return "192.168.1.206"  # Update with your device
 
 
 @pytest.fixture(scope="session")

@@ -22,3 +22,13 @@ def extract_services(input_string) -> list:
             services.append(service_info)
 
     return services
+
+
+def extract_ip(output):
+    ip_pattern = r"\d+\.\d+\.\d+\.\d+:\d+"
+    ip_addresses = []
+    for line in output:
+        ips = re.findall(ip_pattern, line)
+        ip_addresses.extend(ips)
+    if ip_addresses:
+        return ip_addresses[0]

@@ -3,7 +3,7 @@ import re
 import shlex
 import subprocess
 import sys
-import time
+from pathlib import Path
 
 from .utils import extract_services
 
@@ -12,11 +12,6 @@ logger = logging.getLogger(__name__)
 
 def exec_cmd(cmd):
     """Execute the command and return clean output"""
-    # logger.debug(cmd)
-    # cmd = shlex.split(cmd, posix="win" not in sys.platform)
-    # output = subprocess.check_output(cmd)
-    # return output.decode("utf-8").strip()
-
     proc = subprocess.run(
         shlex.split(cmd, posix="win" not in sys.platform),
         check=True,
@@ -34,24 +29,40 @@ class ADB:
 
     serial = None
     adb_process = None
+    adb_path = None
 
-    def __init__(self):
+    def __init__(self, path=None):
+        exe_path = None
         if sys.platform == "win32":
-            self.adb_path = exec_cmd("where adb")
+            exe_path = exec_cmd(
+                'powershell -Command gcm "adb" | Select-Object -ExpandProperty Source'
+            )
+            # exe_path = exec_cmd("where adb")
         else:
-            self.adb_path = exec_cmd("which adb")
+            exe_path = exec_cmd("which adb")
+
+        self.adb_path = Path(exe_path) if exe_path else None
+
+        # Allow override of adb path
+        if path:
+            self.adb_path = Path(path)
 
         if not self.adb_path:
             raise RuntimeError(
                 """
                 You need Android Platform Tools installed and available on your PATH.
                 https://developer.android.com/studio/releases/platform-tools#download
-                Ensure you run `adb tcpip 5555` to enable TCP mode.
+                Then initialize ADB via:
+                adb = ADB("C:\\Path\to\adb")
                 """
             )
 
+        self.adb_path = str(self.adb_path)
+
         # https://stackoverflow.com/questions/44702657/starting-adb-daemon-python/44702825
-        self.start_server()
+        # NOTE: adb should start automatically if it is not already running
+        # when issuing the first adb command
+        # self.start_server()
 
     def __str__(self):
         return self.serial or "Unknown Device"
@@ -66,21 +77,25 @@ class ADB:
 
     # Server ------------------------------------------------------------------
 
+    # def start_server(self):
+    #     cmd = [self.adb_path, "start-server"]
+    #     adb = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    #     # Give the ADB process time to start up. Don't like this, but it works.
+    #     time.sleep(5)
+    #     self.adb_process = adb
+
     def start_server(self):
-        cmd = [self.adb_path, "start-server"]
-        adb = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-        # Give the ADB process time to start up. Don't like this, but it works.
-        time.sleep(5)
-        self.adb_process = adb
+        cmd = self.cmd("start-server")
+        return exec_cmd(cmd)
 
     def kill_server(self):
         cmd = self.cmd("kill-server")
         return exec_cmd(cmd)
 
-    def destroy(self):
-        if self.adb_process:
-            self.adb_process.terminate()
-        self.reset()
+    # def destroy(self):
+    #     if self.adb_process:
+    #         self.adb_process.terminate()
+    #     self.reset()
 
     def tcp(self, port="5555"):
         cmd = self.cmd(f"tcpip {port}")
@@ -116,7 +131,11 @@ class ADB:
         logger.debug("Connect to ADB device %s ...", ip)
         if "failed" in exec_cmd(cmd):
             raise RuntimeError(f"Unable to connect to {ip}")
-        self.serial = self.get_serialno()
+
+        # NOTE: We set this manually since if we have more than 1 device
+        # eg - a emulator, get_serialno will fail.
+        self.serial = ip
+        # self.serial = self.get_serialno()
 
     def is_connected(self) -> bool:
         """Determine if device is connected."""
@@ -154,7 +173,7 @@ class ADB:
         cmd = ["install"]
         if replace:
             cmd.append("-r")
-        cmd.append(apk_file)
+        cmd.append(str(apk_file))
         cmd = " ".join(cmd)
         cmd = self.cmd(cmd)
         return exec_cmd(cmd)
@@ -227,6 +246,10 @@ class ADB:
         cmd = self.cmd(f"shell am force-stop {package}")
         return exec_cmd(cmd)
 
+    def clear_preferences(self, package):
+        cmd = self.cmd(f"shell pm clear {package}")
+        return exec_cmd(cmd)
+
     def list_3rd_party_packages(self) -> list:
         """List 3rd party packages."""
         cmd = self.cmd("shell cmd package list packages -3")
@@ -252,6 +275,10 @@ class ADB:
         return exec_cmd(cmd)
 
     # Misc --------------------------------------------------------------------
+
+    def max_volume(self):
+        cmd = self.cmd("shell media volume --show --max")
+        return exec_cmd(cmd)
 
     def set_home_activity(self, package, activity):
         """Set home activity."""
